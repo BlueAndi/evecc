@@ -1,0 +1,80 @@
+@startuml
+
+title "Principle"
+
+component "Electricity Network" as elecNetwork
+
+note right of elecNetwork
+    The electricity network operator allows only a
+    max. current per phase.
+end note
+
+package "Site" as site {
+
+    package "Fuse Box" as fuseBox {
+
+        component "Terminal Block" as terminalBlock
+        component "Residual Current Device" as rcd
+        component "Power Fuses" as powerFuses
+
+        note left of powerFuses
+            The power fuses limits the max. current
+            per phase.
+        end note
+        terminalBlock - rcd
+        rcd -- powerFuses
+    }
+
+    package "Scenario 1" as scene1 {
+
+        package "Circuit" as scene1_circuit {
+
+            component "Easee Charger" as scene1_ecc
+        }
+
+        interface "Cable" as scene1_cable
+        component "Car" as scene1_car
+        
+        scene1_car -( scene1_cable
+        scene1_cable - scene1_ecc
+    }
+
+    package "Scenario 2" as scene2 {
+
+        package "Circuit" as scene2_circuit {
+
+            component "Easee Charger" as scene2_ecc1
+            component "Easee Charger" as scene2_ecc2
+
+            note right of scene2_ecc1
+                **DynamicChargerCurrent** limits current
+                of a single charger.
+            end note
+
+            scene2_ecc1 -- scene2_ecc2
+        }
+
+        note bottom of scene2_circuit
+            **DynamicCircuitCurrent** limits whole circuit.
+            Note, the circuit is running with load balancing.
+        end note
+
+        interface "Cable" as scene2_cable1
+        interface "Cable" as scene2_cable2
+        component "Car" as scene2_car1
+        component "Car" as scene2_car2
+        
+        scene2_car1 -( scene2_cable1
+        scene2_cable1 - scene2_ecc1
+
+        scene2_car2 -( scene2_cable2
+        scene2_cable2 - scene2_ecc2
+    }
+
+}
+
+elecNetwork -- terminalBlock
+powerFuses -- scene1_ecc
+powerFuses -- scene2_ecc1
+
+@enduml
