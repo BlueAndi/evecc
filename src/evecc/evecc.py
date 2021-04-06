@@ -111,7 +111,7 @@ class EVECC:
         return foundCircuit
 
     async def __setCircuitPowerLimit(self, circuit, powerLimit):
-        """Set the circuit power limit and determines 1 or 3 phase loading.
+        """Set the circuit power limit and determines 1 or 3 phase charging.
 
         Args:
             circuit (dict): Circuit information
@@ -122,9 +122,11 @@ class EVECC:
         phase2CurrentLimit  = None
         phase3CurrentLimit  = None
 
-        if (powerLimit >= phasePowerMax):
+        # Charging single phase enough?
+        if (powerLimit <= phasePowerMax):
             phase1CurrentLimit = powerLimit / self.__VOLTAGE
         else:
+            # Charging over all three phases is necessary
             phase1CurrentLimit  = powerLimit / (3 * self.__VOLTAGE)
             phase2CurrentLimit  = powerLimit / (3 * self.__VOLTAGE)
             phase3CurrentLimit  = powerLimit / (3 * self.__VOLTAGE)
