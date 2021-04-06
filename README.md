@@ -16,6 +16,29 @@ Its a early bird! I couldn't test it completly, because my chargers are not regi
 # Overview
 ![Overview](http://www.plantuml.com/plantuml/proxy?idx=0&src=https://raw.github.com/BlueAndi/evecc/master/doc/principle.plantuml)
 
+# Design
+
+Possible ways to influence the charging current:
+* Per charger
+    * maxChargerCurrent
+        * Stored non-volatile, which means will survive a powerloss.
+        * ```/api/chargers/{id}/settings```
+        * Max. access frequcency: 20 requests per minute.
+    * dynamicChargerCurrent
+        * Stored volatile, which means will not survice a powerloss.
+        * ```/api/chargers/{id}/settings```
+        * Max. access frequcency: 20 requests per minute.
+* Per circuit
+    * maxCircuitCurrent{phase}
+        * Stored non-volatile, which means will survive a powerloss.
+        * ```/api/sites/{siteId}/circuits/{circuitId}/settings```
+        * Max. access frequcency: 20 requests per minute.
+    * dynamicCircuitCurrent{phase}
+        * Stored volatile, which means will not survice a powerloss.
+        * ```/api/sites/{siteId}/circuits/{circuitId}/settings```
+        * Max. access frequcency: 20 requests per minute.
+        * **Used by EVECC.**
+
 # Installation
 ```cmd
 $ git clone https://github.com/BlueAndi/evecc.git

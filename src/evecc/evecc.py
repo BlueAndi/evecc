@@ -131,7 +131,7 @@ class EVECC:
             phase2CurrentLimit  = powerLimit / (3 * self.__VOLTAGE)
             phase3CurrentLimit  = powerLimit / (3 * self.__VOLTAGE)
 
-        await circuit.set_max_current(phase1CurrentLimit, phase2CurrentLimit, phase3CurrentLimit)
+        await circuit.set_dynamic_current(phase1CurrentLimit, phase2CurrentLimit, phase3CurrentLimit)
 
     async def run(self):
         """Run the EV Easee charger controller just once and limit charging current.
