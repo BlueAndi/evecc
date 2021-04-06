@@ -57,16 +57,16 @@ class EVECC:
             circuitKey (str): Circuit key of the given site
             powerLimit (int): Power limit in W
         """
-        self.__username             = username
-        self.__password             = password
-        self.__siteKey              = siteKey
-        self.__circuitKey           = circuitKey
-        self.__powerLimit           = powerLimit
-        self.__easee                = None
-        self.__VOLTAGE              = 230 # [V]
-        self.__PHASE_CURRENT_MAX    = 16 # [A]
+        self._username          = username
+        self._password          = password
+        self._siteKey           = siteKey
+        self._circuitKey        = circuitKey
+        self._powerLimit        = powerLimit
+        self._easee             = None
+        self._VOLTAGE           = 230 # [V]
+        self._PHASE_CURRENT_MAX = 16 # [A]
     
-    async def __getSite(self, siteKey):
+    async def _getSite(self, siteKey):
         """Find the site with the given site key and return it.
 
         Args:
@@ -77,7 +77,7 @@ class EVECC:
         """
         foundSite = None
 
-        sites = await self.__easee.get_sites()
+        sites = await self._easee.get_sites()
 
         for site in sites:
             if (siteKey == site["siteKey"]):
@@ -86,7 +86,7 @@ class EVECC:
         
         return foundSite
 
-    def __getCircuit(self, site, circuitKey):
+    def _getCircuit(self, site, circuitKey):
         """Find the circuit with the given circuit key in the site and return it.
 
         Args:
@@ -110,26 +110,26 @@ class EVECC:
 
         return foundCircuit
 
-    async def __setCircuitPowerLimit(self, circuit, powerLimit):
+    async def _setCircuitPowerLimit(self, circuit, powerLimit):
         """Set the circuit power limit and determines 1 or 3 phase charging.
 
         Args:
             circuit (dict): Circuit information
             powerLimit (int): Circuit power limit in W
         """
-        phasePowerMax       = self.__VOLTAGE * self.__PHASE_CURRENT_MAX
+        phasePowerMax       = self._VOLTAGE * self._PHASE_CURRENT_MAX
         phase1CurrentLimit  = None
         phase2CurrentLimit  = None
         phase3CurrentLimit  = None
 
         # Charging single phase enough?
         if (powerLimit <= phasePowerMax):
-            phase1CurrentLimit = powerLimit / self.__VOLTAGE
+            phase1CurrentLimit = powerLimit / self._VOLTAGE
         else:
             # Charging over all three phases is necessary
-            phase1CurrentLimit  = powerLimit / (3 * self.__VOLTAGE)
-            phase2CurrentLimit  = powerLimit / (3 * self.__VOLTAGE)
-            phase3CurrentLimit  = powerLimit / (3 * self.__VOLTAGE)
+            phase1CurrentLimit  = powerLimit / (3 * self._VOLTAGE)
+            phase2CurrentLimit  = powerLimit / (3 * self._VOLTAGE)
+            phase3CurrentLimit  = powerLimit / (3 * self._VOLTAGE)
 
         await circuit.set_dynamic_current(phase1CurrentLimit, phase2CurrentLimit, phase3CurrentLimit)
 
@@ -140,26 +140,26 @@ class EVECC:
             int: If successful, it will return 0 otherwise non-zero.
         """
         status = SysExitStatus.SUCCESS
-        self.__easee = Easee(self.__username, self.__password)
-        site = await self.__getSite(self.__siteKey)
+        self._easee = Easee(self._username, self._password)
+        site = await self._getSite(self._siteKey)
 
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(vars(site))
         
         if (None == site):
-            print("No site with key %s found." % self.__siteKey)
+            print("No site with key %s found." % self._siteKey)
             status = SysExitStatus.FAILED
         else:
             _LOGGER.info("Site: %s", site["createdOn"])
-            circuit = self.__getCircuit(site, self.__circuitKey)
+            circuit = self._getCircuit(site, self._circuitKey)
 
             if (None == circuit):
-                print("No circuit with key %s found." % self.__circuitKey)
+                print("No circuit with key %s found." % self._circuitKey)
                 status = SysExitStatus.FAILED
             else:
-                self.__setCircuitPowerLimit(circuit, self.__powerLimit)
+                self._setCircuitPowerLimit(circuit, self._powerLimit)
 
-        await self.__easee.close()
+        await self._easee.close()
 
         return status
 
