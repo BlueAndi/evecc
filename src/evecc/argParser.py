@@ -41,17 +41,17 @@ class ArgParser():
     def __init__(self):
         """Configure parser and parse program arguments.
         """
-        self.__parser = argparse.ArgumentParser(description="Electric Vehicle Easee Charge Controller (EVECC)")
+        self._parser = argparse.ArgumentParser(description="Electric Vehicle Easee Charge Controller (EVECC)")
 
         # Arguments in alphabetic ascending order
-        self.__parser.add_argument(
+        self._parser.add_argument(
             "-ck",
             "--circuitKey",
             help="Circuit key of the given site, see in your Easee cloud account.",
             type=str,
             required=True
         )
-        self.__parser.add_argument(
+        self._parser.add_argument(
             "-d",
             "--debug",
             help="Print debugging statements.",
@@ -60,35 +60,35 @@ class ArgParser():
             const=logging.DEBUG,
             default=logging.WARNING,
         )
-        self.__parser.add_argument(
+        self._parser.add_argument(
             "-p",
             "--password",
             help="Login user account password.",
             type=str,
             required=True
         )
-        self.__parser.add_argument(
+        self._parser.add_argument(
             "-pl",
             "--powerLimit",
             help="Max. available power in W.",
             type=int,
             required=True
         )
-        self.__parser.add_argument(
+        self._parser.add_argument(
             "-sk",
             "--siteKey",
             help="Site key, see in your Easee cloud account.",
             type=str,
             required=True
         )
-        self.__parser.add_argument(
+        self._parser.add_argument(
             "-u",
             "--username",
             help="Login user account name.",
             type=str,
             required=True
         )
-        self.__parser.add_argument(
+        self._parser.add_argument(
             "-v",
             "--verbose",
             help="Be verbose.",
@@ -97,7 +97,7 @@ class ArgParser():
             const=logging.INFO,
         )
 
-        self.__args = self.__parser.parse_args()
+        self._args = self._parser.parse_args()
 
     def getArgs(self):
         """Get parsed arguments.
@@ -105,7 +105,7 @@ class ArgParser():
         Returns:
             dict: Arguments
         """
-        return self.__args
+        return self._args
 
 ################################################################################
 # Functions
