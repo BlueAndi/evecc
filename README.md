@@ -27,12 +27,12 @@ $ python setup.py install
 
 Show help information:
 ```cmd
-$ python evecc.py --help
+$ evecc --help
 ```
 
 Limit charging power, e.g. to 3.6kW:
 ```cmd
-$ python evecc.py --username <username> --password <password> --siteKey <site-key> --circuitKey <circuit-key> --powerLimit 3600
+$ evecc --username <username> --password <password> --siteKey <site-key> --circuitKey <circuit-key> --powerLimit 3600
 ```
 
 If the power limit is lower or equal than 3.6kW, charging will be done via single phase otherwise with all 3 phases.

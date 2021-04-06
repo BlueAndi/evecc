@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # MIT License
 #
 # Copyright (c) 2021 Andreas Merkle (web@blue-andi.de)
@@ -26,8 +28,8 @@
 import logging
 import sys
 import asyncio
-from argParser import ArgParser
-from evecc import EVECC
+from .argParser import ArgParser
+from .evecc import EVECC
 
 ################################################################################
 # Variables
@@ -43,11 +45,12 @@ _LOGGER = logging.getLogger(__file__)
 # Functions
 ################################################################################
 
-################################################################################
-# Main
-################################################################################
+def main():
+    """The program entry point function.
 
-if ("__main__" == __name__):
+    Returns:
+        int: System exit status
+    """
     status      = 0
     argParser   = ArgParser()
 
@@ -67,6 +70,13 @@ if ("__main__" == __name__):
     )
 
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    asyncio.run(evecc.run())
+    status = asyncio.run(evecc.run())
 
-    sys.exit(status)
+    return status
+
+################################################################################
+# Main
+################################################################################
+
+if ("__main__" == __name__):
+    sys.exit(main())

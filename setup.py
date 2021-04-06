@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # MIT License
 #
 # Copyright (c) 2021 Andreas Merkle (web@blue-andi.de)
@@ -61,8 +63,12 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "src"},
+    package_dir={"evecc": "src/evecc"},
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.9",
+    include_package_data=True,
     install_requires=["pyeasee==0.7.36"],
+    entry_points={"console_scripts": [
+        "evecc = evecc.__main__:main",
+    ]}
 )
