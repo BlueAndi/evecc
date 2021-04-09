@@ -65,7 +65,7 @@ def main():
         argParser.getArgs().username,
         argParser.getArgs().password,
         argParser.getArgs().siteKey,
-        argParser.getArgs().circuitKey,
+        argParser.getArgs().circuitPanelId,
         argParser.getArgs().powerLimit
     )
 

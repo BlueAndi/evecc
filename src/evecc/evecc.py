@@ -47,20 +47,20 @@ class SysExitStatus(Enum):
 class EVECC:
     """Electric Vehicle Easee Charge Controller
     """
-    def __init__(self, username, password, siteKey, circuitKey, powerLimit):
+    def __init__(self, username, password, siteKey, circuitPanelId, powerLimit):
         """Creates a EV Easee charger controller.
 
         Args:
             username (str): Easee cloud user login name
             password (str): Easee cloud user login password
             siteKey (str): Easee cloud registered site key
-            circuitKey (str): Circuit key of the given site
+            circuitPanelId (int): Circuit panel id of the given site
             powerLimit (int): Power limit in W
         """
         self._username          = username
         self._password          = password
         self._siteKey           = siteKey
-        self._circuitKey        = circuitKey
+        self._circuitPanelId    = circuitPanelId
         self._powerLimit        = powerLimit
         self._easee             = None
         self._VOLTAGE           = 230 # [V]
@@ -86,12 +86,12 @@ class EVECC:
         
         return foundSite
 
-    def _getCircuit(self, site, circuitKey):
-        """Find the circuit with the given circuit key in the site and return it.
+    def _getCircuit(self, site, circuitPanelId):
+        """Find the circuit with the given circuit panel id in the site and return it.
 
         Args:
             site (dict): Site information
-            circuitKey (str): The circuit key which identifies the circuit.
+            circuitPanelId (int): The circuit panel id which identifies the circuit.
 
         Returns:
             dict: Circuit information
@@ -100,11 +100,8 @@ class EVECC:
 
         circuits = site.get_circuits()
 
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(vars(site))
-
         for circuit in circuits:
-            if (circuitKey == circuit["circuitPanelId"]):
+            if (circuitPanelId == circuit["circuitPanelId"]):
                 foundCircuit = circuit
                 break
 
@@ -142,19 +139,16 @@ class EVECC:
         status = SysExitStatus.SUCCESS
         self._easee = Easee(self._username, self._password)
         site = await self._getSite(self._siteKey)
-
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(vars(site))
         
         if (None == site):
             print("No site with key %s found." % self._siteKey)
             status = SysExitStatus.FAILED
         else:
             _LOGGER.info("Site: %s", site["createdOn"])
-            circuit = self._getCircuit(site, self._circuitKey)
+            circuit = self._getCircuit(site, self._circuitPanelId)
 
             if (None == circuit):
-                print("No circuit with key %s found." % self._circuitKey)
+                print("No circuit with panel id %s found." % self._circuitPanelId)
                 status = SysExitStatus.FAILED
             else:
                 self._setCircuitPowerLimit(circuit, self._powerLimit)

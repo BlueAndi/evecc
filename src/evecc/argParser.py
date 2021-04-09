@@ -45,10 +45,10 @@ class ArgParser():
 
         # Arguments in alphabetic ascending order
         self._parser.add_argument(
-            "-ck",
-            "--circuitKey",
-            help="Circuit key of the given site, see in your Easee cloud account.",
-            type=str,
+            "-cpi",
+            "--circuitPanelId",
+            help="Circuit panel id of the given site, see in your Easee cloud account.",
+            type=int,
             required=True
         )
         self._parser.add_argument(
