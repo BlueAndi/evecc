@@ -41,17 +41,30 @@ class ArgParser():
     def __init__(self):
         """Configure parser and parse program arguments.
         """
-        self._parser = argparse.ArgumentParser(description="Electric Vehicle Easee Charge Controller (EVECC)")
+        self._parser = self._createParser()
+        self._args = self._parser.parse_args()
+
+    def _createParser(self):
+        mainParser = self._createMainParser()
+        subParsers = mainParser.add_subparsers(dest="cmd")
+        self._createGetCircuitPowerLimitSubParser(subParsers)
+        self._createSetCircuitPowerLimitSubParser(subParsers)
+
+        return mainParser
+
+    def _createMainParser(self):
+        mainParser = argparse.ArgumentParser(description="Electric Vehicle Easee Charge Controller (EVECC)")
+        mainParser.set_defaults(which="")
 
         # Arguments in alphabetic ascending order
-        self._parser.add_argument(
+        mainParser.add_argument(
             "-cpi",
             "--circuitPanelId",
             help="Circuit panel id of the given site, see in your Easee cloud account.",
             type=int,
             required=True
         )
-        self._parser.add_argument(
+        mainParser.add_argument(
             "-d",
             "--debug",
             help="Print debugging statements.",
@@ -60,35 +73,28 @@ class ArgParser():
             const=logging.DEBUG,
             default=logging.WARNING,
         )
-        self._parser.add_argument(
+        mainParser.add_argument(
             "-p",
             "--password",
             help="Login user account password.",
             type=str,
             required=True
         )
-        self._parser.add_argument(
-            "-pl",
-            "--powerLimit",
-            help="Max. available power in W.",
-            type=int,
-            required=True
-        )
-        self._parser.add_argument(
+        mainParser.add_argument(
             "-sk",
             "--siteKey",
             help="Site key, see in your Easee cloud account.",
             type=str,
             required=True
         )
-        self._parser.add_argument(
+        mainParser.add_argument(
             "-u",
             "--username",
             help="Login user account name.",
             type=str,
             required=True
         )
-        self._parser.add_argument(
+        mainParser.add_argument(
             "-v",
             "--verbose",
             help="Be verbose.",
@@ -97,7 +103,26 @@ class ArgParser():
             const=logging.INFO,
         )
 
-        self._args = self._parser.parse_args()
+        return mainParser
+
+    def _createGetCircuitPowerLimitSubParser(self, subParsers):
+        subParsers.add_parser(
+            "getCircuitPowerLimit",
+            help="Get the circuit power limit."
+        )
+
+    def _createSetCircuitPowerLimitSubParser(self, subParsers):
+        parser = subParsers.add_parser(
+            "setCircuitPowerLimit",
+            help="Set the circuit power limit."
+        )
+        parser.add_argument(
+            "circuitPowerLimit",
+            metavar="P",
+            type=int,
+            nargs=1,
+            help="Circuit power limit in W"
+        )
 
     def getArgs(self):
         """Get parsed arguments.

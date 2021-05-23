@@ -61,16 +61,23 @@ def main():
 
     _LOGGER.debug("args: %s", argParser.getArgs())
 
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
     evecc = EVECC(
         argParser.getArgs().username,
         argParser.getArgs().password,
         argParser.getArgs().siteKey,
-        argParser.getArgs().circuitPanelId,
-        argParser.getArgs().powerLimit
+        argParser.getArgs().circuitPanelId
     )
 
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    status = asyncio.run(evecc.run())
+    if ("getCircuitPowerLimit" == argParser.getArgs().cmd):
+        status, circuitPowerLimit = asyncio.run(evecc.getCircuitPowerLimit())
+        print(circuitPowerLimit)
+    elif ("setCircuitPowerLimit" == argParser.getArgs().cmd):
+        status = asyncio.run(evecc.setCircuitPowerLimit(argParser.getArgs().circuitPowerLimit[0]))
+    else:
+        print("Command is missing.")
+        status = 1
 
     return status
 

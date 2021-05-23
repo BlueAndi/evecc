@@ -47,7 +47,7 @@ class SysExitStatus(Enum):
 class EVECC:
     """Electric Vehicle Easee Charge Controller
     """
-    def __init__(self, username, password, siteKey, circuitPanelId, powerLimit):
+    def __init__(self, username, password, siteKey, circuitPanelId):
         """Creates a EV Easee charger controller.
 
         Args:
@@ -55,13 +55,11 @@ class EVECC:
             password (str): Easee cloud user login password
             siteKey (str): Easee cloud registered site key
             circuitPanelId (int): Circuit panel id of the given site
-            powerLimit (int): Power limit in W
         """
         self._username          = username
         self._password          = password
         self._siteKey           = siteKey
         self._circuitPanelId    = circuitPanelId
-        self._powerLimit        = powerLimit
         self._easee             = None
         self._VOLTAGE           = 230 # [V]
         self._PHASE_CURRENT_MAX = 16 # [A]
@@ -130,12 +128,31 @@ class EVECC:
 
         await circuit.set_dynamic_current(phase1CurrentLimit, phase2CurrentLimit, phase3CurrentLimit)
 
-    async def run(self):
-        """Run the EV Easee charger controller just once and limit charging current.
+    async def getCircuitPowerLimit(self):
+        status = SysExitStatus.SUCCESS
+        settings = None
 
-        Returns:
-            int: If successful, it will return 0 otherwise non-zero.
-        """
+        self._easee = Easee(self._username, self._password)
+        site = await self._getSite(self._siteKey)
+        
+        if (None == site):
+            print("No site with key %s found." % self._siteKey)
+            status = SysExitStatus.FAILED
+        else:
+            _LOGGER.info("Site: %s", site["createdOn"])
+            circuit = self._getCircuit(site, self._circuitPanelId)
+
+            if (None == circuit):
+                print("No circuit with panel id %s found." % self._circuitPanelId)
+                status = SysExitStatus.FAILED
+            else:
+                settings = await (await self._easee.get(f"/api/sites/{site.id}/circuits/{circuit.id}/settings")).json()
+
+        await self._easee.close()
+
+        return status, settings
+
+    async def setCircuitPowerLimit(self, powerLimit):
         status = SysExitStatus.SUCCESS
         self._easee = Easee(self._username, self._password)
         site = await self._getSite(self._siteKey)
@@ -151,7 +168,7 @@ class EVECC:
                 print("No circuit with panel id %s found." % self._circuitPanelId)
                 status = SysExitStatus.FAILED
             else:
-                self._setCircuitPowerLimit(circuit, self._powerLimit)
+                self._setCircuitPowerLimit(circuit, powerLimit)
 
         await self._easee.close()
 
