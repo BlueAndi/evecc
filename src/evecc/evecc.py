@@ -105,6 +105,21 @@ class EVECC:
 
         return foundCircuit
 
+    def _calcCircuitPowerLimit(self, settings):
+        """Calculate the circuit power limit, based on each phase current limitation.
+
+        Args:
+            settings (dict): EASEE cloud response
+
+        Returns:
+            int: Circuit power limit in W
+        """
+        phase1PowerLimit = self._VOLTAGE * settings["dynamicCircuitCurrentP1"]
+        phase2PowerLimit = self._VOLTAGE * settings["dynamicCircuitCurrentP2"]
+        phase3PowerLimit = self._VOLTAGE * settings["dynamicCircuitCurrentP3"]
+
+        return phase1PowerLimit + phase2PowerLimit + phase3PowerLimit
+
     async def _setCircuitPowerLimit(self, circuit, powerLimit):
         """Set the circuit power limit and determines 1 or 3 phase charging.
 
@@ -120,17 +135,24 @@ class EVECC:
         # Charging single phase enough?
         if (powerLimit <= phasePowerMax):
             phase1CurrentLimit = powerLimit / self._VOLTAGE
+            phase2CurrentLimit = 0
+            phase3CurrentLimit = 0
+
+            print("Single phase loading enabled: %d A" % phase1CurrentLimit)
         else:
             # Charging over all three phases is necessary
             phase1CurrentLimit  = powerLimit / (3 * self._VOLTAGE)
             phase2CurrentLimit  = powerLimit / (3 * self._VOLTAGE)
             phase3CurrentLimit  = powerLimit / (3 * self._VOLTAGE)
 
+            print("Triple phase loading enabled: %d A per phase" % phase1CurrentLimit)
+
         await circuit.set_dynamic_current(phase1CurrentLimit, phase2CurrentLimit, phase3CurrentLimit)
 
     async def getCircuitPowerLimit(self):
         status = SysExitStatus.SUCCESS
         settings = None
+        circuitPowerLimit = 0
 
         self._easee = Easee(self._username, self._password)
         site = await self._getSite(self._siteKey)
@@ -147,10 +169,11 @@ class EVECC:
                 status = SysExitStatus.FAILED
             else:
                 settings = await (await self._easee.get(f"/api/sites/{site.id}/circuits/{circuit.id}/settings")).json()
+                circuitPowerLimit = self._calcCircuitPowerLimit(settings)
 
         await self._easee.close()
 
-        return status, settings
+        return status, circuitPowerLimit
 
     async def setCircuitPowerLimit(self, powerLimit):
         status = SysExitStatus.SUCCESS
@@ -168,7 +191,7 @@ class EVECC:
                 print("No circuit with panel id %s found." % self._circuitPanelId)
                 status = SysExitStatus.FAILED
             else:
-                self._setCircuitPowerLimit(circuit, powerLimit)
+                await self._setCircuitPowerLimit(circuit, powerLimit)
 
         await self._easee.close()
 

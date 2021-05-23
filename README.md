@@ -53,12 +53,31 @@ Show help information:
 $ evecc --help
 ```
 
-Limit charging power, e.g. to 3.6kW:
+# Examples
+
+## Get current charging power limitation
+
 ```cmd
-$ evecc --username <username> --password <password> --siteKey <site-key> --circuitKey <circuit-key> --powerLimit 3600
+$ evecc --username <username> --password <password> --siteKey <site-key> --circuitPanelId <circuit-panel-id> getCircuitPowerLimit
 ```
 
-If the power limit is lower or equal than 3.6kW, charging will be done via single phase otherwise with all 3 phases.
+Result:
+```cmd
+11040.0
+```
+
+## Limit charging power
+The following example limits it to 3.68 kW.
+
+```cmd
+$ evecc --username <username> --password <password> --siteKey <site-key> --circuitPanelId <circuit-panel-id> setCircuitPowerLimit 3680
+```
+
+```cmd
+Single phase loading enabled: 16 A
+```
+
+If the power limit is lower or equal than 3.68 kW, charging will be done via single phase otherwise with all 3 phases.
 
 # Setup Development Toolchain
 * Install [python 3.9.x](https://www.python.org/)
